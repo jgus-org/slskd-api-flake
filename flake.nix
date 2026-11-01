@@ -31,7 +31,7 @@
             dependencies = [ python.requests ];
             meta = {
               description = "API wrapper to interact with slskd, the Soulseek daemon.";
-              license = pkgs.lib.licenses.agpl3Plus;
+              license = pkgs.lib.licenses.agpl3Only;
             };
             pname = "slskd-api";
             pyproject = true;
