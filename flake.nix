@@ -43,6 +43,7 @@
     flake-lib.lib.mkPythonFlake {
       inherit nixpkgs self;
       payload.overlays = packages;
+      updateBranches.minimumTrackingVersion = "0.2.0";
       upstream = {
         pin = import ./pin.nix;
         # The PyPI distribution name uses an underscore; the Nix attribute name follows the dash convention.
