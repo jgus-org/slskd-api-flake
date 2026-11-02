@@ -1,27 +1,53 @@
 {
-  description = "slskd-api: Python client for the slskd Soulseek daemon, used by LazyLibrarian.";
+  description = "slskd-api: a Python client for slskd, the Soulseek daemon";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
     flake-lib = {
-      url = "github:jgus-org/flake-lib/v1";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
+      url = "github:jgus-org/flake-lib/v1";
     };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { self, nixpkgs, flake-utils, flake-lib }:
-    flake-lib.lib.mkLeafFlake {
-      inherit nixpkgs flake-utils;
-      # PyPI distribution name uses an underscore (`slskd_api`); Nix uses a dash by convention.
-      source = { type = "pypi"; pname = "slskd_api"; format = "sdist"; };
-      package = {
-        attr = "slskd-api";
-        description = "slskd-api: Python client for the slskd Soulseek daemon, used by LazyLibrarian.";
-        buildSystem = ps: with ps; [ setuptools setuptools-git-versioning ];
-        dependencies = ps: [ ps.requests ];
+  outputs =
+    {
+      self,
+      flake-lib,
+      nixpkgs,
+    }:
+    let
+      packages =
+        {
+          buildPackage,
+          pkgs,
+          python,
+          ...
+        }:
+        {
+          slskd-api = buildPackage {
+            build-system = with python; [
+              setuptools
+              setuptools-git-versioning
+            ];
+            dependencies = [ python.requests ];
+            meta = {
+              description = "API wrapper to interact with slskd, the Soulseek daemon.";
+              license = pkgs.lib.licenses.agpl3Only;
+            };
+            pname = "slskd-api";
+            pyproject = true;
+            pythonImportsCheck = [ "slskd_api" ];
+          };
+        };
+    in
+    flake-lib.lib.mkPythonFlake {
+      inherit nixpkgs self;
+      payload.overlays = packages;
+      upstream = {
+        pin = import ./pin.nix;
+        # The PyPI distribution name uses an underscore; the Nix attribute name follows the dash convention.
+        pname = "slskd_api";
+        type = "pypi";
       };
-      pin = import ./pin.nix;
     };
 }
