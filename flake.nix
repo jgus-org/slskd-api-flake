@@ -42,10 +42,7 @@
     in
     flake-lib.lib.mkPythonFlake {
       inherit nixpkgs self;
-      payload = {
-        inherit packages;
-        overlays = packages;
-      };
+      payload.overlays = packages;
       upstream = {
         pin = import ./pin.nix;
         # The PyPI distribution name uses an underscore; the Nix attribute name follows the dash convention.
